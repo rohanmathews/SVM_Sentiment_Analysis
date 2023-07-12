@@ -50,6 +50,3 @@ This will print the sentiment of the input text.
 ## Note
 
 The classification model, vectorizer, and label encoder are all saved as pickle files after training, and these are loaded each time the `get_sentiment.py` script is run. This means that you don't have to retrain the classifier every time you want to classify a text string. If you want to train a new classifier (e.g., if you have new training data), just delete the pickle files and run the respective training script again.
-```
-
-Remember to close the shell and python code blocks properly in the actual README file.
