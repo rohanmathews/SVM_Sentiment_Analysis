@@ -1,61 +1,59 @@
-import pickle
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn import svm
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.model_selection import train_test_split
 import pandas as pd
-import matplotlib.pyplot as plt
+import pickle
 import seaborn as sns
-from sklearn.metrics import confusion_matrix
+import matplotlib.pyplot as plt
 
-
-import chardet
-
+# Load the datasets
 with open('train.csv', 'r', encoding='utf-8', errors='replace') as f:
     train_df = pd.read_csv(f)
 
 with open('test.csv', 'r', encoding='utf-8', errors='replace') as f:
     test_df = pd.read_csv(f)
 
-
-
 # Preprocessing - Vectorization of text
 vectorizer = TfidfVectorizer(sublinear_tf=True, encoding='utf-8', decode_error='ignore', stop_words='english')
 train_vectors = vectorizer.fit_transform(train_df['OriginalTweet'])
 test_vectors = vectorizer.transform(test_df['OriginalTweet'])
+
+# Saving vectorizer
+with open('vectorizer_poly.pkl', 'wb') as f:
+    pickle.dump(vectorizer, f)
 
 # Encoding Labels
 encoder = LabelEncoder()
 train_labels = encoder.fit_transform(train_df['Sentiment'])
 test_labels = encoder.transform(test_df['Sentiment'])
 
+# Saving encoder
+with open('encoder_poly.pkl', 'wb') as f:
+    pickle.dump(encoder, f)
+
 # Training the classifier
-classifier_linear = svm.SVC(kernel='linear')
-classifier_linear.fit(train_vectors, train_labels)
+classifier_poly = svm.SVC(kernel='poly', degree=3)
+classifier_poly.fit(train_vectors, train_labels)
 
-
-# Save the trained model, vectorizer and encoder
-pickle.dump(classifier_linear, open("svm_model.pkl", "wb"))
-pickle.dump(vectorizer, open("vectorizer.pkl", "wb"))
-pickle.dump(encoder, open("label_encoder.pkl", "wb"))
-
+# Saving the model
+with open('svm_poly_model.pkl', 'wb') as f:
+    pickle.dump(classifier_poly, f)
 
 # Making predictions
-prediction_linear = classifier_linear.predict(test_vectors)
+prediction_poly = classifier_poly.predict(test_vectors)
 
 # Printing the classification report
-print(classification_report(test_labels, prediction_linear, target_names=encoder.classes_))
-# Create a confusion matrix
-cm = confusion_matrix(test_labels, prediction_linear)
+print(classification_report(test_labels, prediction_poly, target_names=encoder.classes_))
 
-# Create a DataFrame from the confusion matrix
-cm_df = pd.DataFrame(cm, index=encoder.classes_, columns=encoder.classes_)
+# Generating confusion matrix
+conf_matrix = confusion_matrix(test_labels, prediction_poly)
 
-# Plot the confusion matrix
+# Visualizing the confusion matrix using seaborn
 plt.figure(figsize=(10,7))
-sns.heatmap(cm_df, annot=True, fmt="d", cmap='Blues')
-plt.title('Confusion matrix')
+sns.heatmap(conf_matrix, annot=True, fmt='d',
+            xticklabels=encoder.classes_, yticklabels=encoder.classes_)
 plt.xlabel('Predicted')
-plt.ylabel('True')
+plt.ylabel('Actual')
 plt.show()

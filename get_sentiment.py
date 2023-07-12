@@ -21,5 +21,5 @@ def get_sentiment(input_text):
 
 
 # Example usage:
-input_text = "Food shortage"
+input_text = "fuck"
 print(f"Sentiment: {get_sentiment(input_text)}")
