@@ -1,4 +1,3 @@
-```markdown
 # Sentiment Analysis with SVM Classifier
 
 This repository contains code to train and use an SVM classifier with different kernels to perform sentiment analysis on text.
